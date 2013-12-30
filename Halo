@@ -1,4 +1,3 @@
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +8,7 @@ import java.util.List;
  *         entirely by myself, and therefore I would not recommend using these operations in any truly performance critical
  *         code. 
  */
-public class halo
+public class Halo
 {
 	/**
 	 * @param expression

@@ -16,4 +16,4 @@ Otherwise, expressions can be written almost exactly like a normal if statement.
 
 As I have written the parser myself, I would not recommend using these operations in any truly performance critical code.
 
-Give it a try! I'd love to hear your comments and criticism. Also, you can download this library as a .jar here: https://mega.co.nz/#!RtV0hYgK!Okv0KBxUeiQ6oHjhX9EA0kreC4EQ0cbzc2D9kDU_b70
+Give it a try! I'd love to hear your comments and criticism. Also, you can download this library as a .jar here: https://mega.co.nz/#!t4cRFALK!W2wUwEiuTfDtUVdECPcWXhhBtmgDZldO1cV83nC4q8E

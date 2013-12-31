@@ -4,7 +4,7 @@ This library includes the methods: takeWhile(), any(), all(), dropWhile(), rever
 
 This library also includes a parser for boolean expressions. While I won't make any guarantees, I have tested it as thoroughly as I can, and it seems to be working flawlessly. A few things to note, however:
 
-You cannot use the "!" operator in an expression yet?.
+You cannot use the "!" operator in an expression (yet).
 
 For comparison of strings, use ==, !=, etc...
 

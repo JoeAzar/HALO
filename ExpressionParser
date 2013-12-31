@@ -1,3 +1,4 @@
+package hlo;
 
 class ExpressionParser
 {
@@ -14,8 +15,15 @@ class ExpressionParser
 		return false;
 	}
 
+	public static void main(String[] args)
+	{
+		System.out.println(ExpressionParser.evaluate("2+[x] == [y] && (1==1 && Joe==Joe && 3^2>10)", "x", 5, "y", 7));
+		System.out.println(ExpressionParser.evaluate("(10*.1==1)"));
+		System.out.println(ExpressionParser.evaluate("(1^(10^2)==1^100)"));
+	}
+
 	@SafeVarargs
-	static <T> boolean evaluate(String or, T... rep)
+	public static <T> boolean evaluate(String or, T... rep)
 	{
 		String[] temp = new String[rep.length];
 		for (int i = 0; i < rep.length; i++)
@@ -43,7 +51,7 @@ class ExpressionParser
 		String right = s.substring(op[1]).trim();
 		String oper = s.substring(start, op[1]).trim();
 		int logType = logicalOperatorType(oper);
-		//System.out.println("PARSE: Left: \"" + left + "\" Right: \"" + right + "\" Operator: \"" + oper + "\"");
+		System.out.println("PARSE: Left: \"" + left + "\" Right: \"" + right + "\" Operator: \"" + oper + "\"");
 		if (logType == 0) // encounters OR- recurse
 			return parseWithStrings(left) || parseWithStrings(right);
 		else if (logType == 1) // encounters AND- recurse
@@ -71,31 +79,33 @@ class ExpressionParser
 			{
 				int endIndex = locInStr + sampSize;
 				String sub;
-				if ((endIndex < s.length()) && s.charAt(endIndex) == '=')
-					sub = s.substring(locInStr, ++endIndex).trim();
+				if ((endIndex < s.length()) && s.charAt(endIndex) == '=') //detects if the operator is 2 chars wide
+					sub = s.substring(locInStr, ++endIndex).trim(); 
 				else
 					sub = s.substring(locInStr, endIndex).trim();
 				if (isOperator(sub))
 				{
-					// Idea here is to weight logical operators so that they will still be selected over other operators
-					// when no parens are present
-					int parens = (logicalOperatorType(sub) > -1) ? parens(s, locInStr) - 1 : parens(s, locInStr);
-					if (containsMathematicalOperator(sub))
+					// Idea here is to weight operators so that they will still be selected over other operators
+					// when no parens are present, and to account for order of operations. By multiplying by 5, I allow myself 4 levels of precedence
+					//between nested parens.
+					int parens = 5 * parens(s, locInStr);
+					switch (sub)
 					{
-						// Order of operations weighting
-						switch (sub)
-						{
-						case "^":
-						case "/":
-						case "*":
-							parens++;
-							break;
-						case "+":
-						case "-":
-							break;
-						}
+					case "^":
+						parens += 2;
+						break;
+					case "/":
+					case "*":
+						parens++;
+						break;
+					case "+":
+					case "-":
+						break;
+					case "||":
+					case "&&":
+						parens--;
 					}
-					if (parens <= minParens)
+					if (parens <= minParens)//isolate highest precedence operator
 					{
 						minParens = parens;
 						currentMin = new int[] { locInStr, endIndex, parens };
@@ -143,14 +153,7 @@ class ExpressionParser
 
 	private static String removeParens(String s)
 	{
-		s = s.trim();
-		String keep = "";
-		for (char c : s.toCharArray())
-		{
-			if (!(c == '(') && !(c == ')'))
-				keep += c;
-		}
-		return keep.trim();
+		return s.replaceAll("(\\(|\\))", "").trim();
 	}
 
 	private static boolean isOperator(String op)
@@ -166,10 +169,7 @@ class ExpressionParser
 
 	private static boolean isInt(String s)
 	{
-		for (char c : s.toCharArray())
-			if (!Character.isDigit(c) && c != '.')
-				return false;
-		return true;
+		return s.trim().matches("(\\d|\\.)+");
 	}
 
 	private static boolean evaluate(double left, String op, double right)
@@ -194,14 +194,14 @@ class ExpressionParser
 		}
 	}
 
-	private static double parseMathematicalExpression(String s)
+	public static double parseMathematicalExpression(String s)
 	{
 		int[] op = determineOperatorPrecedenceAndLocation(s);
 		int start = op[0];
 		String left = s.substring(0, start).trim();
 		String right = s.substring(op[1]).trim();
 		String oper = s.substring(start, op[1]).trim();
-		//System.out.println("MATH:  Left: \"" + left + "\" Right: \"" + right + "\" Operator: \"" + oper + "\"");
+		System.out.println("MATH:  Left: \"" + left + "\" Right: \"" + right + "\" Operator: \"" + oper + "\"");
 		if (containsMathematicalOperator(left))
 			left = "" + parseMathematicalExpression(left);
 		if (containsMathematicalOperator(right))

@@ -12,7 +12,9 @@ For exponentiation, use ^
 
 PEMDAS ("order of operations") is followed for mathematical expressions.
 
-Otherwise, expressions can be written almost exactly like a normal if statement.
+Boolean operators (namely && and ||) retain their short circuit properties.
+
+Otherwise, expressions can be written very similar to a normal if statement.
 
 As I have written the parser myself, I would not recommend using these operations in any truly performance critical code.
 

@@ -2,7 +2,7 @@ package hlo;
 
 class ExpressionParser
 {
-	private static final String[] operators = { "!=", "==", ">=", "<=", ">", "<", "||", "&&", "*", "/", "+", "-", "^" };
+	private static String[] operators = { "!=", "==", ">=", "<=", ">", "<", "||", "&&", "*", "/", "+", "-", "^", "%" };
 
 	private static boolean parseAndEvaluateExpression(String ex)
 	{
@@ -36,7 +36,7 @@ class ExpressionParser
 		return parseAndEvaluateExpression(or);
 	}
 
-	private static boolean parseWithStrings(String s)
+	static private boolean parseWithStrings(String s)
 	{
 		int[] op = determineOperatorPrecedenceAndLocation(s);
 		int start = op[0];
@@ -44,7 +44,7 @@ class ExpressionParser
 		String right = s.substring(op[1]).trim();
 		String oper = s.substring(start, op[1]).trim();
 		int logType = logicalOperatorType(oper);
-		//System.out.println("PARSE: Left: \"" + left + "\" Right: \"" + right + "\" Operator: \"" + oper + "\"");
+		System.out.println("PARSE: Left: \"" + left + "\" Right: \"" + right + "\" Operator: \"" + oper + "\"");
 		if (logType == 0) // encounters OR- recurse
 			return parseWithStrings(left) || parseWithStrings(right);
 		else if (logType == 1) // encounters AND- recurse
@@ -56,12 +56,12 @@ class ExpressionParser
 		String leftSansParen = removeParens(left);
 		String rightSansParen = removeParens(right);
 		if (isInt(leftSansParen) && isInt(rightSansParen))
-			return evaluate(Double.parseDouble(leftSansParen), oper, Double.parseDouble(rightSansParen));
+			return eval(Double.parseDouble(leftSansParen), oper, Double.parseDouble(rightSansParen));
 		else
-			return evaluate(leftSansParen, oper, rightSansParen); // assume they are strings
+			return eval(leftSansParen, oper, rightSansParen); // assume they are strings
 	}
 
-	private static int[] determineOperatorPrecedenceAndLocation(String s)
+	static private int[] determineOperatorPrecedenceAndLocation(String s)
 	{
 		s = s.trim();
 		int minParens = Integer.MAX_VALUE;
@@ -72,33 +72,32 @@ class ExpressionParser
 			{
 				int endIndex = locInStr + sampSize;
 				String sub;
-				if ((endIndex < s.length()) && s.charAt(endIndex) == '=') //detects if the operator is 2 chars wide
-					sub = s.substring(locInStr, ++endIndex).trim(); 
+				if ((endIndex < s.length()) && s.charAt(endIndex) == '=') // detects if the operator is 2 chars wide
+					sub = s.substring(locInStr, ++endIndex).trim();
 				else
 					sub = s.substring(locInStr, endIndex).trim();
 				if (isOperator(sub))
 				{
 					// Idea here is to weight operators so that they will still be selected over other operators
-					// when no parens are present, and to account for order of operations. By multiplying by 5, I allow myself 4 levels of precedence
-					//between nested parens.
-					int parens = 5 * parens(s, locInStr);
+					// when no parens are present, and to account for order of operations. By multiplying by 100, I allow
+					// myself many levels of precedence
+					// between nested parens.
+					int parens = 100 * parens(s, locInStr);
 					switch (sub)
 					{
 					case "^":
-						parens += 2;
+						parens += 40 + locInStr / 3;
 						break;
+					case "%":
 					case "/":
 					case "*":
-						parens++;
-						break;
-					case "+":
-					case "-":
+						parens += 20;
 						break;
 					case "||":
 					case "&&":
-						parens--;
+						parens -= 20;
 					}
-					if (parens <= minParens)//isolate highest precedence operator
+					if (parens <= minParens)// isolate highest precedence operator
 					{
 						minParens = parens;
 						currentMin = new int[] { locInStr, endIndex, parens };
@@ -109,7 +108,7 @@ class ExpressionParser
 		return currentMin;
 	}
 
-	private static int logicalOperatorType(String op)
+	static private int logicalOperatorType(String op)
 	{
 		switch (op.trim())
 		{
@@ -122,7 +121,7 @@ class ExpressionParser
 		}
 	}
 
-	private static boolean containsMathematicalOperator(String s)
+	static private boolean containsMathematicalOperator(String s)
 	{
 		s = s.trim();
 		for (char c : s.toCharArray())
@@ -131,7 +130,7 @@ class ExpressionParser
 		return false;
 	}
 
-	private static int parens(String s, int loc)
+	static private int parens(String s, int loc)
 	{
 		int parens = 0;
 		for (int i = 0; i < s.length(); i++)
@@ -144,12 +143,12 @@ class ExpressionParser
 		return parens;
 	}
 
-	private static String removeParens(String s)
+	static private String removeParens(String s)
 	{
 		return s.replaceAll("(\\(|\\))", "").trim();
 	}
 
-	private static boolean isOperator(String op)
+	static private boolean isOperator(String op)
 	{
 		op = op.trim();
 		for (String s : operators)
@@ -160,12 +159,12 @@ class ExpressionParser
 		return false;
 	}
 
-	private static boolean isInt(String s)
+	static private boolean isInt(String s)
 	{
 		return s.trim().matches("(\\d|\\.)+");
 	}
 
-	private static boolean evaluate(double left, String op, double right)
+	static private boolean eval(double left, String op, double right)
 	{
 		switch (op)
 		{
@@ -187,14 +186,14 @@ class ExpressionParser
 		}
 	}
 
-	public static double parseMathematicalExpression(String s)
+	static public double parseMathematicalExpression(String s)
 	{
 		int[] op = determineOperatorPrecedenceAndLocation(s);
 		int start = op[0];
 		String left = s.substring(0, start).trim();
 		String right = s.substring(op[1]).trim();
 		String oper = s.substring(start, op[1]).trim();
-		//System.out.println("MATH:  Left: \"" + left + "\" Right: \"" + right + "\" Operator: \"" + oper + "\"");
+		System.out.println("MATH:  Left: \"" + left + "\" Right: \"" + right + "\" Operator: \"" + oper + "\"");
 		if (containsMathematicalOperator(left))
 			left = "" + parseMathematicalExpression(left);
 		if (containsMathematicalOperator(right))
@@ -203,7 +202,7 @@ class ExpressionParser
 				Double.parseDouble(removeParens(right)));
 	}
 
-	private static double evaluateSingleMathematicalExpression(double result1, String oper, double result2)
+	static private double evaluateSingleMathematicalExpression(double result1, String oper, double result2)
 	{
 		switch (oper)
 		{
@@ -217,13 +216,15 @@ class ExpressionParser
 			return result1 + result2;
 		case "^":
 			return Math.pow(result1, result2);
+		case "%":
+			return result1 % result2;
 		default:
 			System.err.println("MATH ERROR: Mismatched Input.");
 			return 0;
 		}
 	}
 
-	private static boolean evaluate(String left, String op, String right)
+	static private boolean eval(String left, String op, String right)
 	{
 		switch (op)
 		{

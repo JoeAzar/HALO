@@ -1,6 +1,6 @@
 HALO - Haskell List Operations (in Java)
 ====
-This library includes the methods: takeWhile(), any(), all(), dropWhile(), reverse(), elem(), elemIndices(), elemIndex(), findIndex(), findIndices(), lines(), unlines(), words(), unwords(), and concat() 2D arrays and 1D String arrays?.
+This library includes the methods: takeWhile(), any(), all(), dropWhile(), reverse(), elem(), elemIndices(), elemIndex(), findIndex(), findIndices(), lines(), unlines(), words(), unwords(), and concat() for 2D arrays and 1D String arrays.
 
 This library also includes a parser for boolean expressions. While I won't make any guarantees, I have tested it as thoroughly as I can, and it seems to be working flawlessly. A few things to note, however:
 
